@@ -1,0 +1,20 @@
+doctype html
+html
+    include includes/head.pug
+    body
+        main
+            div#controls-container
+                input#song-input(type="text")
+                button#submit 點歌
+        script.
+            const socket = new WebSocket('!{host}');
+            socket.addEventListener('open', function(event){
+                socket.send('user wants to connect');
+            });
+            socket.addEventListener('message', function(event){
+                console.log('message from server: ' + event.data);
+            });
+            let song_input = document.getElementById('song-input');
+            const bookSong = () => {
+                socket.send(song_input.value);
+            }

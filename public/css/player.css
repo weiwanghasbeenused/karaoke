@@ -1,0 +1,55 @@
+iframe {
+    display: none;
+    width: 100%;
+    height: 100vh;
+}
+.player.playing {
+    display: block;
+}
+[data-playing-index="0"] [data-player-index="0"], 
+[data-playing-index="1"] [data-player-index="1"]{
+    display: block;
+}
+/* #control-panel {
+    flex: 0 0 200px;
+} */
+[data-role="karaoke-players-container"] {
+    height: 100vh;
+    position: relative;
+    background-color: #00f;
+}
+[data-role="karaoke-players-container"][data-state="pending"]:after {
+    content: '請點歌';
+    font-size: 3rem;
+    line-height: 1;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+}
+#auth-youtube-btn {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+.queue-item {
+    padding: 10px;
+}
+@media (min-width: 700px)
+{
+    [data-role="karaoke-container"] {
+        display: flex;
+    }
+    [data-role="karaoke-dashboard"] {
+        flex: 0 0 200px;
+    }
+    [data-role="karaoke-players-container"] {
+        flex: 1;
+        /* height: 100vh; */
+        /* position: relative; */
+    }
+    
+}
