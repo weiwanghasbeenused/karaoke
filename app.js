@@ -23,6 +23,8 @@ app.use(express.static(__dirname + "/public"));
 const indexRouter = require('./routes/index')
 const playerRouter = require('./routes/player')
 
+app.enable('trust proxy');
+
 app.use('/', indexRouter);
 app.use('/player', playerRouter);
 
