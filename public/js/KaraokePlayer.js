@@ -168,7 +168,7 @@ class KaraokePlayer{
         // console.log(id);
         // console.log(pattern);
         // console.log(id.match(pattern));
-        id = id.match(pattern)[1];
+        // id = id.match(pattern)[1];
         return id;
     }
     updateCurrentQueueItem(id){
