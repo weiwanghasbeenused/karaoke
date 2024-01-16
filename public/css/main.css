@@ -8,8 +8,27 @@ body {
     margin: 0;
 }
 
+.full-vh{
+    height: 100vh;
+}
+.full-vw{
+    width: 100vw;
+    max-width: 100%;
+}
 
-
+.viewport-mask {
+    background-color: rgba(255, 255, 255, 0.9);
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+}
+#auth-youtube-mask {
+    display: none;
+}
+.viewing-auth-youtube-mask #auth-youtube-mask {
+    display: block;
+}
 /* main {
     display: flex;
 } */

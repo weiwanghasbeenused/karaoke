@@ -1,10 +1,12 @@
 doctype html
 html
     include includes/head.pug
-    body
+    body.viewing-auth-youtube-mask
+        div#auth-youtube-mask.viewport-mask.full-vh.full-vw
+            div#auth-youtube-btn.btn 點我開始
         main
             div#karaoke-container
-            button#auth-youtube-btn 點我開始
+            
         script(src="/js/KaraokePlayer.js")
         script(src="/js/WS.js")
         script(src="https://apis.google.com/js/api.js")
@@ -27,8 +29,9 @@ html
             const ws = new KaraokeWS('!{host}');
             ws.onMessage(function(event){
                 if(!kplayer.isReady) return;
-                console.log(event.data);
-                kplayer.book(event.data);
+                let message = JSON.parse(event.data);
+                if(message.type === 'book')
+                    kplayer.book(message.body);
             });
 
             /**
@@ -48,7 +51,8 @@ html
                 gapi.client.setApiKey('!{YOUTUBE_API_KEY}');
                 return gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
                     .then(function() { console.log("GAPI client loaded for API"); 
-                        kplayer.gapi = gapi
+                        kplayer.gapi = gapi;
+                        document.body.classList.remove('viewing-auth-youtube-mask');
                     }, function(err) { console.error("Error loading GAPI client for API", err); });
             }
             // Make sure the client is loaded and sign-in is complete before calling this method.

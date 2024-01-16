@@ -6,15 +6,18 @@ html
             div#controls-container
                 input#song-input(type="text")
                 button#submit 點歌
+        script(src="/js/WS.js")
         script.
-            const socket = new WebSocket('!{host}');
-            socket.addEventListener('open', function(event){
-                socket.send('user wants to connect');
+            /* websocket */
+            const ws = new KaraokeWS('!{host}');
+            ws.onMessage(function(event){
+                let res = JSON.parse(event.data);
+                if(res.type == 'status' && res.body == 1) console.log('ordered');
             });
-            socket.addEventListener('message', function(event){
-                console.log('message from server: ' + event.data);
-            });
+
             let song_input = document.getElementById('song-input');
-            const bookSong = () => {
-                socket.send(song_input.value);
-            }
+            let submit = document.getElementById('submit');
+            submit.addEventListener('click', ()=>{
+                let msg = {'type': 'book', 'body': song_input.value};
+                ws.send(JSON.stringify(msg));
+            });
