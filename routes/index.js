@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/', function(req, res){
-    let host = 'ws://' + req.get('host');
+    let host = req.protocol === 'https' ? 'wss://' + req.get('host') : 'ws://' + req.get('host');
     res.render('index', {host: host})
 })
 
