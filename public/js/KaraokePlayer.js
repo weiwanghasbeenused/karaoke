@@ -151,11 +151,23 @@ class KaraokePlayer{
     urlToId(url){
         // https://www.youtube.com/watch?v=id
         // https://www.youtube.com/v/id?version=3
-        let id = url.replace('https://www.youtube.com/', '');
-        let pattern = id.indexOf('watch') !== -1 ? /watch\?v=(.*)(?:t=.*?)?/ : /v\/(.*?)\?version\=3/;
-        console.log(id);
-        console.log(pattern);
-        console.log(id.match(pattern));
+        // https://youtu.be/B5zaOodFaGI?si=r7Nd0LyWAbfNbjsE
+        let id = url;
+        if(id.indexOf('https://www.youtube.com/') !== -1) {
+            id = id.replace('https://www.youtube.com/', '');
+            let pattern = id.indexOf('watch') !== -1 ? /watch\?v=(.*)(?:t=.*?)?/ : /v\/(.*?)\?version\=3/;
+            id = id.match(pattern)[1];
+        }
+        else if(id.indexOf('https://youtu.be/') !== -1){
+            id = id.replace('https://youtu.be/', '');
+            let pattern = /^(.*?)\?.*?/;
+            id = id.match(pattern)[1];
+        }
+
+        
+        // console.log(id);
+        // console.log(pattern);
+        // console.log(id.match(pattern));
         id = id.match(pattern)[1];
         return id;
     }
