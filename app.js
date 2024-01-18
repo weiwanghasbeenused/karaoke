@@ -3,8 +3,8 @@ const app = express()
 require('dotenv').config()
 const server = require('http').createServer(app)
 const WebSocket = require('ws');
-
 const wss = new WebSocket.Server({ server: server })
+const port = process.env.PORT;
 
 wss.on('connection', function connection(ws) {
     console.log('A new client connected')
@@ -35,4 +35,4 @@ app.enable('trust proxy');
 app.use('/', indexRouter);
 app.use('/player', playerRouter);
 
-server.listen(3000, () => console.log('Listening to port 3000'))
+server.listen(port, () => console.log('Listening to port ' + port))

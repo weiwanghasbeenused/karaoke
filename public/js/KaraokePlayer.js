@@ -35,13 +35,18 @@ class KaraokePlayer{
         this.els.input.setAttribute('placeholder', 'Youtube URL . . .');
         this.els.submit = document.createElement('button');
         this.els.submit.innerText = '點歌';
-        this.els.karaoke_controls_container.appendChild(this.els.input);
-        this.els.karaoke_controls_container.appendChild(this.els.submit);
+        // this.els.karaoke_controls_container.appendChild(this.els.input);
+        // this.els.karaoke_controls_container.appendChild(this.els.submit);
 
         // this.els.toggleDashboardButton = document.createElement('input');
 
         this.els.dashboard.appendChild(this.els.queue_container);
         this.els.dashboard.appendChild(this.els.karaoke_controls_container);
+        this.els.expand_btn = document.createElement('div');
+        this.els.expand_btn.innerText = '展開';
+        this.els.expand_btn.id = 'expand-dashboard-btn';
+        this.els.expand_btn.class = 'btn';
+        this.els.dashboard.appendChild(this.els.expand_btn);
         this.container.appendChild(this.els.dashboard);
         this.els.players_container = document.createElement('div');
         this.els.players_container.id = 'karaoke-players-container';
@@ -59,9 +64,9 @@ class KaraokePlayer{
         }
     }
     addListeners(){
-        this.els.submit.addEventListener('click', ()=> {
-            this.book(this.els.input.value);
-        });
+        // this.els.submit.addEventListener('click', ()=> {
+        //     this.book(this.els.input.value);
+        // });
     }
     loadAPI(){
         /*
@@ -100,9 +105,8 @@ class KaraokePlayer{
             this.play(e.target);
         }
     }
-    book (url) {
-        let id = this.urlToId(url);
-        url = 'https://www.youtube.com/v/' +id + '?version=3';
+    request (id) {
+        let url = 'https://www.youtube.com/v/' +id + '?version=3';
         if(!this.isPlaying) {
             this.els.players_container.setAttribute('data-state', 'playing');
             this.players[this.currentIdx].loadVideoByUrl(url, 0);
@@ -112,19 +116,6 @@ class KaraokePlayer{
             this.queue.push(url);
             this.appendQueueItem(id);
         }
-        // else if(this.currentIdx + 1 < this.players.length){
-        //     this.players[this.currentIdx + 1].load
-        // }
-        // if(this.currentIdx === false) {
-        //     console.log('currently no song is playing/pending.');
-        //     console.log('booking ' + url + '...');
-        //     this.currentIdx = 0; 
-        //     this.players[this.currentIdx].loadVideoByUrl(url, 0);
-        // }
-        // else if(this.players[this.currentIdx].getPlayerState() === 0) {
-        //     this.players[this.currentIdx].cueVideoByUrl(url, 0);
-        //     this.currentIdx = (this.currentIdx + 1) % 2;
-        // }
     }
     next(){
         if(!this.queue.length) return;
@@ -148,29 +139,7 @@ class KaraokePlayer{
         p.classList.add('playing');
         p.playVideo();
     }
-    urlToId(url){
-        // https://www.youtube.com/watch?v=id
-        // https://www.youtube.com/v/id?version=3
-        // https://youtu.be/B5zaOodFaGI?si=r7Nd0LyWAbfNbjsE
-        let id = url;
-        if(id.indexOf('https://www.youtube.com/') !== -1) {
-            id = id.replace('https://www.youtube.com/', '');
-            let pattern = id.indexOf('watch') !== -1 ? /watch\?v=(.*)(?:t=.*?)?/ : /v\/(.*?)\?version\=3/;
-            id = id.match(pattern)[1];
-        }
-        else if(id.indexOf('https://youtu.be/') !== -1){
-            id = id.replace('https://youtu.be/', '');
-            let pattern = /^(.*?)\?.*?/;
-            id = id.match(pattern)[1];
-        }
-
-        
-        // console.log(id);
-        // console.log(pattern);
-        // console.log(id.match(pattern));
-        // id = id.match(pattern)[1];
-        return id;
-    }
+    
     updateCurrentQueueItem(id){
         let q = document.querySelector('.queue-item[data-video-id="' + id + '"]');
         if(!q) {
@@ -192,7 +161,14 @@ class KaraokePlayer{
             ]
         })
         .then(function(response) {
-            if(typeof cb === 'function') cb(response.result.items[0].snippet.title);
+            if(typeof cb === 'function') {
+                try {
+                    cb(response.result.items[0].snippet.title);
+                }catch(err) {
+                    console.log('id is not valid');
+                }
+
+            }
         }.bind(this),
         function(err) { console.error("Execute error", err); });
     }

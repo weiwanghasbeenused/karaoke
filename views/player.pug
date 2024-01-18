@@ -3,16 +3,25 @@ html
     include includes/head.pug
     body.viewing-auth-youtube-mask
         div#auth-youtube-mask.viewport-mask.full-vh.full-vw
-            div#auth-youtube-btn.btn 點我開始
+            div#auth-youtube-btn.btn(onclick="authenticate().then(loadClient)") 點我開始
         main
             div#karaoke-container
-            
         script(src="/js/KaraokePlayer.js")
+        script(src="/js/KaraokeBooker.js")
         script(src="/js/WS.js")
         script(src="https://apis.google.com/js/api.js")
         script.
+            /* websocket */
+            const ws = new KaraokeWS('!{host}');
+            ws.onMessage(function(event){
+                if(!kplayer.isReady) return;
+                let message = JSON.parse(event.data);
+                if(message.type === 'book')
+                    kbooker.book(message.body);
+            });
             let sKaraoke_container = document.getElementById('karaoke-container');
-            const kplayer = new KaraokePlayer(sKaraoke_container);
+            const kplayer = new KaraokePlayer(sKaraoke_container);    
+            const kbooker = new KaraokeBooker(kplayer.els.karaoke_controls_container, ws, kplayer);    
             function onYouTubeIframeAPIReady() {
                 for(let i = 0; i < kplayer.player_num; i++) {
                     kplayer.players[i] = new YT.Player('player-' + (i + 1), {
@@ -25,22 +34,13 @@ html
                     });
                 }
             }
-            /* websocket */
-            const ws = new KaraokeWS('!{host}');
-            ws.onMessage(function(event){
-                if(!kplayer.isReady) return;
-                let message = JSON.parse(event.data);
-                if(message.type === 'book')
-                    kplayer.book(message.body);
-            });
+            
 
             /**
             * Sample JavaScript code for youtube.videos.list
             * See instructions for running APIs Explorer code samples locally:
             * https://developers.google.com/explorer-help/code-samples#javascript
             */
-            console.log('!{YOUTUBE_API_KEY}')
-            console.log('!{YOUTUBE_CLIENT_ID}')
             function authenticate() {
                 return gapi.auth2.getAuthInstance()
                     .signIn({scope: "https://www.googleapis.com/auth/youtube.readonly"})
@@ -74,5 +74,5 @@ html
             gapi.load("client:auth2", function() {
                 gapi.auth2.init({client_id: '!{YOUTUBE_CLIENT_ID}'});
             });
-            const sAuth_youtube_btn = document.getElementById('auth-youtube-btn');
-            sAuth_youtube_btn.addEventListener('click', () => authenticate().then(loadClient));
+            //- const sAuth_youtube_btn = document.getElementById('auth-youtube-btn');
+            //- sAuth_youtube_btn.addEventListener('click', () => authenticate().then(loadClient));
