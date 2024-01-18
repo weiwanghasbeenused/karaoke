@@ -113,14 +113,14 @@ class KaraokePlayer{
             this.updateCurrentQueueItem(id);
         } 
         else {
-            this.queue.push(url);
+            this.queue.push(id);
             this.appendQueueItem(id);
         }
     }
     next(){
         if(!this.queue.length) return;
-        let url = this.queue.shift();
-        let id = this.urlToId(url);
+        let id = this.queue.shift();
+        let url = 'https://www.youtube.com/v/' +id + '?version=3';
         this.currentIdx = this.currentIdx + 1 >= this.player_num ? 0 : this.currentIdx + 1;
         this.players[this.currentIdx].loadVideoByUrl(url, 0);
         this.updateCurrentQueueItem(id);
