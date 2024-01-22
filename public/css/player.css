@@ -38,6 +38,19 @@ iframe {
 .queue-item {
     padding: 10px;
 }
+#expand-dashboard-btn {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 950;
+}
+[data-role="karaoke-dashboard"] {
+    box-sizing: border-box;
+    padding: 10px;
+}
+[data-role="karaoke-dashboard"][data-visibility="hidden"] {
+    display: none;
+}
 @media (min-width: 700px)
 {
     [data-role="karaoke-container"] {
