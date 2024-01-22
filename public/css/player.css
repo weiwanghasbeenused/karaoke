@@ -44,8 +44,19 @@ iframe {
     left: 10px;
     z-index: 950;
 }
+#expand-dashboard-btn[data-btn-status="on"]:after {
+    content: "收起";
+    display: inline;
+}
+#expand-dashboard-btn[data-btn-status="off"]:after {
+    content: "展開";
+    display: inline;
+}
 [data-role="karaoke-dashboard"] {
     box-sizing: border-box;
+    
+}
+[data-role="booker-container"] {
     padding: 10px;
 }
 [data-role="karaoke-dashboard"][data-visibility="hidden"] {

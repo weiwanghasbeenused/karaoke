@@ -1,6 +1,7 @@
 class KaraokeBooker{
     constructor(container, ws, player=null){
         this.container = container;
+        this.container.setAttribute('data-role', 'booker-container');
         this.ws = ws;
         this.player = player;
         this.els = {};

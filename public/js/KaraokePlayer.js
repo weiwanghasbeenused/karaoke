@@ -43,7 +43,8 @@ class KaraokePlayer{
         this.els.dashboard.appendChild(this.els.queue_container);
         this.els.dashboard.appendChild(this.els.karaoke_controls_container);
         this.els.expand_btn = document.createElement('div');
-        this.els.expand_btn.innerText = '展開';
+        this.els.expand_btn.setAttribute('data-btn-status', 'on');
+        // this.els.expand_btn.innerText = '展開';
         this.els.expand_btn.id = 'expand-dashboard-btn';
         this.els.expand_btn.className = 'btn';
         this.container.appendChild(this.els.expand_btn);
@@ -69,7 +70,9 @@ class KaraokePlayer{
         // });
         this.els.expand_btn.addEventListener('click', ()=> {
             let v = this.els.dashboard.getAttribute('data-visibility') == 'visible' ? 'hidden' : 'visible';
+            let s = v === 'visible' ? 'on' : 'off';
             this.els.dashboard.setAttribute('data-visibility', v);
+            this.els.expand_btn.setAttribute('data-btn-status', s);
         });
     }
     loadAPI(){
