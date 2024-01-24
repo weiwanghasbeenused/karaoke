@@ -17,6 +17,7 @@ class KaraokeBooker{
         this.els.input = document.createElement('input');
         this.els.input.className = 'song-input large-input';
         this.els.input.type = 'text';
+        this.els.input.placeholder = "Yourube URL";
         this.els.clean_btn = document.createElement('div');
         this.els.clean_btn.className = 'clean-input-btn';
         this.els.book_btn = document.createElement('button');

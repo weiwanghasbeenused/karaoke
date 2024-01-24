@@ -3,14 +3,16 @@ html
     include includes/head.pug
     body.viewing-auth-youtube-mask
         div#auth-youtube-mask.viewport-mask.full-vh.full-vw
-            div#auth-youtube-btn.btn(onclick="authenticate().then(loadClient)") 點我開始
+            div#auth-youtube-btn.btn(onclick="authenticate()") 點我開始
         main
             div#karaoke-container
         script(src="/js/KaraokePlayer.js")
         script(src="/js/KaraokeBooker.js")
         script(src="/js/WS.js")
         script(src="https://apis.google.com/js/api.js")
+        script(src="https://accounts.google.com/gsi/client")
         script.
+            createCookie('G_AUTH2_MIGRATION', 'enforced');
             /* websocket */
             const ws = new KaraokeWS('!{host}');
             ws.onMessage(function(event){
@@ -34,46 +36,60 @@ html
                     });
                 }
             }
-            
-
+            console.log(gapi);
+            let client;
             /**
             * Sample JavaScript code for youtube.videos.list
             * See instructions for running APIs Explorer code samples locally:
             * https://developers.google.com/explorer-help/code-samples#javascript
             */
             function authenticate() {
-                return gapi.auth2.getAuthInstance()
-                    .signIn({scope: "https://www.googleapis.com/auth/youtube.readonly"})
-                    .then(function() { console.log("Sign-in successful"); },
-                        function(err) { console.error("Error signing in", err); });
+                console.log('authenticate');
+                client.requestAccessToken();
             }
-            function loadClient() {
-                gapi.client.setApiKey('!{YOUTUBE_API_KEY}');
+            
+            client = google.accounts.oauth2.initTokenClient({
+                client_id: '!{YOUTUBE_CLIENT_ID}',
+                scope: 'https://www.googleapis.com/auth/youtube.readonly',
+                callback: (response) => {
+                    console.log(response);
+                    if (response && response.access_token) {
+                        console.log('yaya');
+                        console.log(gapi);
+                        console.log(client);
+                        //- gapi.client.setApiKey('!{YOUTUBE_API_KEY}');
+                        
+                        //- gapi.client.load('youtube', 'v3', function(){
+                        //-     console.log('load youtube');
+                        //-     kplayer.gapi = gapi;
+                        //-     document.body.classList.remove('viewing-auth-youtube-mask');
+                        //- });
+                        gapi.client.setApiKey('!{YOUTUBE_API_KEY}');
+                        
+                        gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest").then(function() { 
+                            console.log("GAPI client loaded for API"); 
+                            kplayer.gapi = gapi;
+                            document.body.classList.remove('viewing-auth-youtube-mask');
+                            }, function(err) { console.error("Error loading GAPI client for API", err); });;
+                    }
+                    else console.log('access token request failed.');
+
+                    //- document.body.classList.remove('viewing-auth-youtube-mask');
+                },
+            });
+            function loadClient(key) {
+                
                 return gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
                     .then(function() { console.log("GAPI client loaded for API"); 
-                        kplayer.gapi = gapi;
-                        document.body.classList.remove('viewing-auth-youtube-mask');
+                        
                     }, function(err) { console.error("Error loading GAPI client for API", err); });
             }
+            gapi.load('client', ()=>console.log('gapi client loaded'));
             // Make sure the client is loaded and sign-in is complete before calling this method.
-            function execute() {
-                return gapi.client.youtube.videos.list({
-                "part": [
-                    "snippet,contentDetails,statistics"
-                ],
-                "id": [
-                    "26MuLZUQRn8"
-                ]
-                })
-                    .then(function(response) {
-                            // Handle the results here (response.result has the parsed body).
-                            console.log("Response", response);
-                        },
-                        function(err) { console.error("Execute error", err); });
-            }
-            gapi.load("client:auth2", function() {
-                gapi.auth2.init({client_id: '!{YOUTUBE_CLIENT_ID}'});
-            });
+
+            //- gapi.load("client:auth2", function() {
+            //-     gapi.auth2.init({client_id: '!{YOUTUBE_CLIENT_ID}'});
+            //- });
             //- const sAuth_youtube_btn = document.getElementById('auth-youtube-btn');
             //- sAuth_youtube_btn.addEventListener('click', () => authenticate().then(loadClient));
         include includes/foot.pug
