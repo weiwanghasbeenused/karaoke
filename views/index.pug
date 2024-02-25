@@ -5,13 +5,9 @@ html
         main.full-vh
             div#booker-container
         script(src="/js/KaraokeBooker.js")
+        script(src="/js/KaraokeRemoteBooker.js")
         script(src="/js/WS.js")
         script.
             /* websocket */
-            const ws = new KaraokeWS('!{host}');
-            ws.onMessage(function(event){
-            let res = JSON.parse(event.data);
-                if(res.type == 'status' && res.body == 1) console.log('ordered');
-            });
-            const kbooker = new KaraokeBooker(document.querySelector('#booker-container'), ws);   
+            const k_booker = new KaraokeRemoteBooker(document.querySelector('#booker-container'), '!{host}');   
         include includes/foot.pug 

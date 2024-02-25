@@ -6,19 +6,22 @@ class KaraokeWS{
     }
     init(){
         this.socket = new WebSocket(this.host);
-        
         let msg = {
-            'type': 'notification',
+            'type': 'request',
             'body': 'client wants to connect'
         }
         this.socket.addEventListener('open', (event) => this.socket.send(JSON.stringify(msg)) );
-        // this.socket.addEventListener('open');
     }
     onMessage(callback){
         this.socket.addEventListener('message', callback);
     }
     send(msg, callback) {
-        this.socket.send(msg);
-        if(typeof callback === 'function') callback(msg);
+        if(this.socket.readyState === this.socket.OPEN) {
+            this.socket.send(msg)
+            if(typeof callback === 'function') callback(msg);
+        } else {
+            
+        }
+        
     }
 }

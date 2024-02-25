@@ -131,3 +131,6 @@ dist
 
 .DS_Store
 package-lock.json
+
+client_secret.json
+quickstart.js

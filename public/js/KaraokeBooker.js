@@ -1,41 +1,128 @@
 class KaraokeBooker{
-    constructor(container, ws, player=null){
+    constructor(container, host){
         this.container = container;
         this.container.setAttribute('data-role', 'booker-container');
-        this.ws = ws;
-        this.player = player;
+        this.host = host;
+        this.socket = null;
         this.els = {};
+        this.searchUrl = '/video/search';
+        this.timer = null;
+        this.init();
+    }
+    init(){
+        this.initSocket();
         this.renderElements();
         this.addListeners();
     }
+    initSocket(body = '', cb){
+        this.socket = new WebSocket(this.host);
+        let msg = {
+            'type': 'register',
+            'body': location.pathname
+        }
+        this.socket.addEventListener('open', (event) => this.socket.send(JSON.stringify(msg)) );
+        this.addSocketListeners();
+        if(typeof cb === 'function') cb();
+    }
+    // addSocketListeners(){
+    // }
     renderElements(){
-        this.els.label = document.createElement('label');
-        this.els.label.innerText = '請輸入想點播的 Youtube 影片 URL';
+        this.els.controlscontainer = document.createElement('div');
+        this.els.controlscontainer.className = 'karaoke-booker-control-container full-vw';
         this.els.wrapper = document.createElement('div');
         this.els.wrapper.setAttribute('data-input-status', 'empty');
         this.els.wrapper.className = 'input-wrapper';
         this.els.input = document.createElement('input');
-        this.els.input.className = 'song-input large-input';
+        this.els.input.className = 'song-input large-input popped';
+        this.els.input.id = 'search-youtube-input';
         this.els.input.type = 'text';
-        this.els.input.placeholder = "Yourube URL";
+        this.els.input.placeholder = "搜尋影片 (Youtube)";
         this.els.clean_btn = document.createElement('div');
         this.els.clean_btn.className = 'clean-input-btn';
-        this.els.book_btn = document.createElement('button');
-        this.els.book_btn.className = 'book-btn';
-        this.els.book_btn.innerText = '點歌';
+        this.els.search_btn = document.createElement('button');
+        this.els.search_btn.className = 'btn circle-btn popped';
+        this.els.search_btn.id = 'search-youtube-button';
+        this.els.arrow = document.createElement('div');
+        this.els.arrow.className = 'arrow right-arrow';
+        this.els.search_btn.appendChild(this.els.arrow);
         this.els.wrapper.appendChild(this.els.input);
         this.els.wrapper.appendChild(this.els.clean_btn);
-        this.container.appendChild(this.els.label);
-        this.container.appendChild(this.els.wrapper);
-        this.container.appendChild(this.els.book_btn);
+        this.els.pa = document.createElement('div');
+        this.els.pa.id = 'karaoke-booker-pa';
+        this.els.pa.className = 'full-vw';
+
+        this.els.controlscontainer.appendChild(this.els.wrapper);
+        this.els.controlscontainer.appendChild(this.els.search_btn);
+        this.els.result_container = document.createElement('div');
+        this.els.result_container.setAttribute('data-role', 'search-result-container');
+        this.container.appendChild(this.els.result_container);
+        this.container.appendChild(this.els.controlscontainer);
+        this.container.appendChild(this.els.pa);
     }
     addListeners(){
-        this.els.input.addEventListener('change', ()=> this.toggleInputStatus());
+        this.els.input.addEventListener('keyup', ()=> this.toggleInputStatus());
         this.els.clean_btn.addEventListener('click', ()=> this.cleanInput());
-        this.els.book_btn.addEventListener('click', ()=> {
-            let id = this.urlToId(this.els.input.value);
-            this.book(id);
+        this.els.search_btn.addEventListener('click', () => {
+            let keyword = this.els.input.value;
+            if(!keyword || keyword.match(/^\s*&/)) return;
+            this.els.result_container.innerHTML = '';
+            this.timer = this.animateArrow();
+            this.els.input.invalid = true;
+            this.search(keyword, (res)=>{
+                clearInterval(this.timer);
+                this.els.input.invalid = false;
+                this.els.arrow.style.transform = '';
+                for(let i = 0; i < res.items.length; i++) {
+                    let r = this.renderSearchResult(res.items[i]);
+                    this.els.result_container.appendChild(r);
+                    r.addEventListener('click', ()=>{
+                        this.zoomInResult(r);
+                    });
+                }
+            })
         });
+
+    }
+    search(keyword, cb){
+        let request = new XMLHttpRequest();
+        let url = this.searchUrl + '?q=' + keyword;
+        request.onreadystatechange = () => {
+            if(request.readyState === 4 && request.status === 200) {
+                try {
+                    let res = JSON.parse(request.responseText);
+                    if(typeof cb === 'function') cb(res);
+                }
+                catch(err){
+                    console.log(err)
+                }
+            }
+        };
+        request.open('GET', url);
+        request.send();
+    }
+    renderSearchResult(data){
+        let output = document.createElement('article');
+        output.className = 'row search-result-wrapper';
+        output.setAttribute('data-videoId', data.id.videoId);
+        let title = document.createElement('h2');
+        title.className = 'search-result-title'
+        title.innerHTML = data.snippet.title;
+        let tn_wrapper = document.createElement('div');
+        tn_wrapper.className = 'search-result-thumbnail-wrapper';
+        let tn = document.createElement('img');
+        tn.className = 'search-result-thumbnail';
+        tn.src = data.snippet.thumbnails.default.url;
+        tn_wrapper.appendChild(tn);
+        let btn = document.createElement('button');
+        btn.className = 'btn book-btn circle-btn popped';
+        let arrow = document.createElement('div');
+        arrow.className = 'arrow top-arrow';
+        btn.appendChild(arrow);
+        btn.onclick = () => this.book(data.id.videoId);
+        output.appendChild(tn_wrapper);
+        output.appendChild(title);
+        output.appendChild(btn);
+        return output;
     }
     toggleInputStatus() {
         let status = this.els.input.value === '' ? 'empty' : 'filled';
@@ -66,14 +153,18 @@ class KaraokeBooker{
         }
         return id;
     }
-    book(id) {
-        if(!id) return;
-        if(!this.player) {
-            let msg = {'type': 'book', 'body': id};
-            this.ws.send(JSON.stringify(msg));
-        }
-        else {
-            this.player.request(id);
-        }
+    animateArrow(deg=0){
+        if(!this.els.arrow) return null;
+        return setInterval(()=>{
+            deg += Math.random() >= 0.5 ? 8 : -8;
+            this.els.arrow.style.transform = 'rotate('+deg+'deg)';
+        }, 100);
+    }
+    zoomInResult(el){
+        let popped = document.querySelectorAll('.search-result-wrapper.popped');
+        console.log(popped);
+        for(let i = 0; i < popped.length; i++) 
+            popped[i].classList.remove('popped');
+        el.classList.add('popped');
     }
 }

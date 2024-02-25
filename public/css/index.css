@@ -1,12 +1,6 @@
-.book-btn-wrapper {
-    position: relative;
-    flex: 1;
-}
-.book-btn {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-}
 [data-role="booker-container"] {
-    padding-bottom: 70px;
+    padding-bottom: 60px;
+}
+main {
+    /* padding: var(--padding); */
 }

@@ -9,6 +9,7 @@ class KaraokePlayer{
         this.queue = [];
         this.currentIdx = 0;
         this.gapi = null;
+        this.fetchUrl = '/video/fetch';
         this.init();
     }
     init(){
@@ -112,11 +113,11 @@ class KaraokePlayer{
             this.play(e.target);
         }
     }
-    request (id) {
-        let url = 'https://www.youtube.com/v/' +id + '?version=3';
+    async request (id) {
         if(!this.isPlaying) {
+            let url = 'https://www.youtube.com/v/' +id + '?version=3';
             this.els.players_container.setAttribute('data-state', 'playing');
-            this.players[this.currentIdx].loadVideoByUrl(url, 0);
+            await this.players[this.currentIdx].loadVideoByUrl(url, 0);
             this.updateCurrentQueueItem(id);
         } 
         else {
@@ -159,25 +160,24 @@ class KaraokePlayer{
         }
     }
     requestVideoTitle(id, cb){
-        return this.gapi.client.youtube.videos.list({
-            "part": [
-                "snippet,contentDetails,statistics"
-            ],
-            "id": [
-                id
-            ]
-        })
-        .then(function(response) {
-            if(typeof cb === 'function') {
+        let request = new XMLHttpRequest();
+        let url = this.fetchUrl + '?id=' + id;
+        request.onreadystatechange = async () => {
+            if(request.readyState === 4 && request.status === 200) {
                 try {
-                    cb(response.result.items[0].snippet.title);
-                }catch(err) {
-                    console.log('id is not valid');
+                    let res = JSON.parse(request.responseText);
+                    if(typeof cb === 'function' && res.items[0].snippet.title) {
+                        cb(res.items[0].snippet.title);
+                    }
                 }
-
+                catch(err){
+                    console.log(err)
+                }
+                
             }
-        }.bind(this),
-        function(err) { console.error("Execute error", err); });
+        };
+        request.open('GET', url);
+        request.send();
     }
     appendQueueItem(id){
         this.requestVideoTitle(id, (title) => {

@@ -3,25 +3,55 @@ const app = express()
 require('dotenv').config()
 const server = require('http').createServer(app)
 const WebSocket = require('ws');
+const url = require('url');
 const wss = new WebSocket.Server({ server: server })
 const port = process.env.PORT;
+const bookers = new Map();
+const players = new Map();
 
-wss.on('connection', function connection(ws) {
+wss.on('connection', function connection(ws, request, client) {
     console.log('A new client connected')
+    let body = 'You are connected.';
+    let welcome_msg = {
+        'type': 'welcome',
+        'body': body
+    };
+    ws.send(JSON.stringify(welcome_msg));
+    // console.log(clients);
     ws.on('message', function incoming(message, isBinary){
-        // console.log('received: %s', message);
-        let ws_res = {
-            'type': 'status',
-            'body': 1
-        };
-        let message_json = JSON.parse(message);
-        ws.send(JSON.stringify(ws_res));
-        if(message_json.type === 'book') {
-            wss.clients.forEach(function each(client){
-                if(client !== ws && client.readyState === WebSocket.OPEN) {
-                    client.send(message, {binary:isBinary});
+        
+        let data = JSON.parse(message);
+        if(data.type === 'register') {
+            let client_id = Date.now();
+            let response = {
+                'type': 'register-res',
+                'status': 'success',
+                'body': 'you\'re registered as '
+            };
+            if(data.body === '/player') {
+                players.set(client_id, ws);
+                response['body'] += 'player ('+client_id+').';
+                ws.send(JSON.stringify(response));
+            }
+            else if(data.body === '/') {
+                bookers.set(client_id, ws);
+                response['body'] += 'booker ('+client_id+').';
+                ws.send(JSON.stringify(response));
+            }
+            else {
+                response['status'] = 'error';
+                response['body'] = 'fail to register: known path.'
+                ws.send(JSON.stringify(response));
+            }
+        } else if(data.type === 'book-res') {
+            let c_id = data.body;
+            bookers[c_id].send(message, {binary:isBinary});
+        } else if(data.type === 'book-req') {
+            players.forEach(function(p, key){
+                if(p.readyState === WebSocket.OPEN) {
+                    p.send(message, {binary:isBinary});
                 }
-            })
+            });
         }
     })
 })
@@ -29,10 +59,12 @@ app.set('view engine', 'pug')
 app.use(express.static(__dirname + "/public"));
 const indexRouter = require('./routes/index')
 const playerRouter = require('./routes/player')
+const videoRouter = require('./routes/video')
 
 app.enable('trust proxy');
 
 app.use('/', indexRouter);
 app.use('/player', playerRouter);
+app.use('/video', videoRouter);
 
 server.listen(port, () => console.log('Listening to port ' + port))
