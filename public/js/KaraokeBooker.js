@@ -1,7 +1,8 @@
 class KaraokeBooker{
-    constructor(container, host){
+    constructor(container, host, keyword=''){
         this.container = container;
         this.container.setAttribute('data-role', 'booker-container');
+        this.keyword = keyword ? keyword : '';
         this.host = host;
         this.socket = null;
         this.els = {};
@@ -29,15 +30,20 @@ class KaraokeBooker{
     // addSocketListeners(){
     // }
     renderElements(){
-        this.els.controlscontainer = document.createElement('div');
-        this.els.controlscontainer.className = 'karaoke-booker-control-container full-vw';
+        this.els.form = document.createElement('form');
+        this.els.form.className = 'karaoke-booker-control-container full-vw';
+        this.els.form.action = '/';
+        // this.els.form.method = 'GET';
         this.els.wrapper = document.createElement('div');
-        this.els.wrapper.setAttribute('data-input-status', 'empty');
+        let s = this.keyword === '' ? 'empty' : 'filled';
+        this.els.wrapper.setAttribute('data-input-status', s);
         this.els.wrapper.className = 'input-wrapper';
         this.els.input = document.createElement('input');
         this.els.input.className = 'song-input large-input popped';
         this.els.input.id = 'search-youtube-input';
-        this.els.input.type = 'text';
+        this.els.input.name = 'keyword';
+        this.els.input.type = 'search';
+        this.els.input.value = this.keyword;
         this.els.input.placeholder = "搜尋影片 (Youtube)";
         this.els.clean_btn = document.createElement('div');
         this.els.clean_btn.className = 'clean-input-btn';
@@ -53,37 +59,50 @@ class KaraokeBooker{
         this.els.pa.id = 'karaoke-booker-pa';
         this.els.pa.className = 'full-vw';
 
-        this.els.controlscontainer.appendChild(this.els.wrapper);
-        this.els.controlscontainer.appendChild(this.els.search_btn);
+        this.els.form.appendChild(this.els.wrapper);
+        this.els.form.appendChild(this.els.search_btn);
         this.els.result_container = document.createElement('div');
         this.els.result_container.setAttribute('data-role', 'search-result-container');
         this.container.appendChild(this.els.result_container);
-        this.container.appendChild(this.els.controlscontainer);
+        this.container.appendChild(this.els.form);
         this.container.appendChild(this.els.pa);
+        if(this.keyword === '') return;
+        this.search(this.keyword, (res)=>{
+            clearInterval(this.timer);
+            this.els.input.invalid = false;
+            this.els.arrow.style.transform = '';
+            for(let i = 0; i < res.items.length; i++) {
+                let r = this.renderSearchResult(res.items[i]);
+                this.els.result_container.appendChild(r);
+                r.addEventListener('click', (event)=>{
+                    this.toggleZoomResult(event, r);
+                }, true);
+            }
+        });
     }
     addListeners(){
         this.els.input.addEventListener('keyup', ()=> this.toggleInputStatus());
         this.els.input.addEventListener('keydown', this.inputControlByKeybaord.bind(this));
         this.els.clean_btn.addEventListener('click', ()=> this.cleanInput());
-        this.els.search_btn.addEventListener('click', () => {
-            let keyword = this.els.input.value;
-            if(!keyword || keyword.match(/^\s*&/)) return;
-            this.els.result_container.innerHTML = '';
-            this.timer = this.animateArrow();
-            this.els.input.invalid = true;
-            this.search(keyword, (res)=>{
-                clearInterval(this.timer);
-                this.els.input.invalid = false;
-                this.els.arrow.style.transform = '';
-                for(let i = 0; i < res.items.length; i++) {
-                    let r = this.renderSearchResult(res.items[i]);
-                    this.els.result_container.appendChild(r);
-                    r.addEventListener('click', (event)=>{
-                        this.toggleZoomResult(event, r);
-                    }, true);
-                }
-            })
-        });
+        // this.els.search_btn.addEventListener('click', () => {
+        //     let keyword = this.els.input.value;
+        //     if(!keyword || keyword.match(/^\s*&/)) return;
+        //     this.els.result_container.innerHTML = '';
+        //     this.timer = this.animateArrow();
+        //     this.els.input.invalid = true;
+        //     this.search(keyword, (res)=>{
+        //         clearInterval(this.timer);
+        //         this.els.input.invalid = false;
+        //         this.els.arrow.style.transform = '';
+        //         for(let i = 0; i < res.items.length; i++) {
+        //             let r = this.renderSearchResult(res.items[i]);
+        //             this.els.result_container.appendChild(r);
+        //             r.addEventListener('click', (event)=>{
+        //                 this.toggleZoomResult(event, r);
+        //             }, true);
+        //         }
+        //     });
+        // });
     }
     inputControlByKeybaord(event){
         if(event.keyCode === 13) {

@@ -1,6 +1,6 @@
 class KaraokeRemoteBooker extends KaraokeBooker {
-    constructor(container, host){
-        super(container, host);
+    constructor(container, host, keyword = ''){
+        super(container, host, keyword);
         this.container.setAttribute('control-layout', 'full');
     }
     addSocketListeners(){
