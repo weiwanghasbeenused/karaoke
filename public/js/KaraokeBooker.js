@@ -13,6 +13,8 @@ class KaraokeBooker{
         this.initSocket();
         this.renderElements();
         this.addListeners();
+        // this.els.input.value = '新不了情';
+        // this.els.search_btn.click();
     }
     initSocket(body = '', cb){
         this.socket = new WebSocket(this.host);
@@ -61,6 +63,7 @@ class KaraokeBooker{
     }
     addListeners(){
         this.els.input.addEventListener('keyup', ()=> this.toggleInputStatus());
+        this.els.input.addEventListener('keydown', this.inputControlByKeybaord.bind(this));
         this.els.clean_btn.addEventListener('click', ()=> this.cleanInput());
         this.els.search_btn.addEventListener('click', () => {
             let keyword = this.els.input.value;
@@ -75,13 +78,35 @@ class KaraokeBooker{
                 for(let i = 0; i < res.items.length; i++) {
                     let r = this.renderSearchResult(res.items[i]);
                     this.els.result_container.appendChild(r);
-                    r.addEventListener('click', ()=>{
-                        this.zoomInResult(r);
-                    });
+                    r.addEventListener('click', (event)=>{
+                        this.toggleZoomResult(event, r);
+                    }, true);
                 }
             })
         });
-
+    }
+    inputControlByKeybaord(event){
+        if(event.keyCode === 13) {
+            let keyword = this.els.input.value;
+            if(!keyword || keyword.match(/^\s*&/)) return;
+            this.els.result_container.innerHTML = '';
+            this.timer = this.animateArrow();
+            this.els.input.invalid = true;
+            this.search(keyword, (res)=>{
+                clearInterval(this.timer);
+                this.els.input.invalid = false;
+                this.els.arrow.style.transform = '';
+                for(let i = 0; i < res.items.length; i++) {
+                    let r = this.renderSearchResult(res.items[i]);
+                    this.els.result_container.appendChild(r);
+                    r.addEventListener('click', (event)=>{
+                        this.toggleZoomResult(event, r);
+                    });
+                }
+            });
+        } else if (event.keyCode === 27) {
+            this.cleanInput();
+        }
     }
     search(keyword, cb){
         let request = new XMLHttpRequest();
@@ -114,9 +139,9 @@ class KaraokeBooker{
         tn.src = data.snippet.thumbnails.default.url;
         tn_wrapper.appendChild(tn);
         let btn = document.createElement('button');
-        btn.className = 'btn book-btn circle-btn popped';
+        btn.className = 'btn book-btn';
         let arrow = document.createElement('div');
-        arrow.className = 'arrow top-arrow';
+        arrow.className = 'arrow up-arrow';
         btn.appendChild(arrow);
         btn.onclick = () => this.book(data.id.videoId);
         output.appendChild(tn_wrapper);
@@ -160,11 +185,15 @@ class KaraokeBooker{
             this.els.arrow.style.transform = 'rotate('+deg+'deg)';
         }, 100);
     }
-    zoomInResult(el){
+    toggleZoomResult(event, el){
+        // console.log(el);
+        if(event.target.classList.contains('book-btn')) return;
+        // console.log(event.target)
+        let zoomIn = !el.classList.contains('popped');
         let popped = document.querySelectorAll('.search-result-wrapper.popped');
-        console.log(popped);
+        // console.log(popped);
         for(let i = 0; i < popped.length; i++) 
             popped[i].classList.remove('popped');
-        el.classList.add('popped');
+        if(zoomIn) el.classList.add('popped');
     }
 }

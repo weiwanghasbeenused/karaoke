@@ -13,28 +13,22 @@
 .search-result-wrapper {
     position: relative;
     margin: 5px var(--padding);
-    
     background-color: var(--bg);
     border-radius: 16px;
-    /* border: 1px solid; */
     transition: all 0.25s;
     display: flex;
-    overflow: hidden;
     cursor: pointer;
-    /* border-top: 0; */
 }
 .search-result-title {
     position: relative;
-    
     padding: 10px 12px;
-    padding-right: 40px;
     flex: 1;
-    /* border-radius: 16px; */
-    border-top-right-radius: 16px;
-    border-bottom-right-radius: 16px;
+    /* border-top-right-radius: 16px; */
+    /* border-bottom-right-radius: 16px; */
     transition: all 0.25s;
     border: 1px solid;
     border-left: 0;
+    border-right: 0;
 }
 .search-result-thumbnail-wrapper {
     position:relative;
@@ -64,6 +58,7 @@
 }
 .search-result-wrapper.popped {
     background-color: #fff;
+    z-index: 10;
 }
 .search-result-wrapper.popped .search-result-title {
     border-color: transparent;
@@ -75,19 +70,48 @@
     opacity: 0;
 }
 .book-btn {
-    position: absolute;
-    right:0;
-    bottom: 0;
-    background-color: #ffffff;
-    opacity: 0;
+    background-color: transparent;
+    opacity: 1;
     pointer-events: none;
     cursor: pointer;
-    margin-bottom: -8px;
+    
+    border-top-left-radius: 0; 
+    border-bottom-left-radius: 0;
+    border: 1px solid;
+    border-left: 0;
+    
+    color: transparent;
+    border-color: var(--text);
+    /* width: 0; */
+}
+.search-result-wrapper .book-btn .arrow {
+    opacity: 0;
+}
+.search-result-wrapper.popped .book-btn .arrow {
+    opacity: 1;
+}
+.search-result-wrapper.popped .book-btn {
+    pointer-events: auto;
+    transition: all .35s;
+    /* margin-top: 3px; */
+    /* border: none; */
+    color: var(--text);
+    border-color: #fff;
+    /* border-top-left-radius: 50%;  */
+    /* border-bottom-left-radius: 50%; */
+    box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.8);
+    /* width: auto; */
+}
+
+/*
+.search-result-wrapper.popped .book-btn.popped {
+    transform: translate(0%, 100%);
 }
 .popped .book-btn{
     opacity: 1;
     pointer-events: auto;
 }
+*/
 .clean-input-btn {
     position: absolute;
     left: 8px;
@@ -145,7 +169,7 @@
     border-bottom: 8px solid transparent; 
     transform-origin: 33% 50%;
 }
-.top-arrow {
+.up-arrow {
     border-left: 8px solid transparent; 
     border-right: 8px solid transparent;
     border-bottom: 16px solid var(--text);

@@ -7,13 +7,14 @@
     /* --text: #2d2d2d; */
     --bg: #d1d1d1;
     /* --bg: #ffffff; */
-    --padding: 14px;
+    --padding: 10px;
+    --lh: 1.2;
 }
 * {
     margin: 0;
 }
 html {
-    font-size: 16px;
+    font-size: 14px;
 }
 body {
     margin: 0;
@@ -21,12 +22,13 @@ body {
     background-color: var(--bg);
     color: var(--text);
     -webkit-text-stroke-width: 0.03em;
+    line-height: var(--lh);
     /* -webkit-text-stroke-color: var(--text); */
 }
 h1, h2, p {
     font-size: 1rem;
     font-weight: normal;
-    line-height: 1;
+    /* line-height: 1; */
 }
 .full-vh{
     height: 100vh;
