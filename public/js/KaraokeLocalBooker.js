@@ -22,8 +22,10 @@ class KaraokeLocalBooker extends KaraokeBooker {
                 
         });
     }
-    async book(id, client_id='') {
-        if(!id) return;
+    async book(data, client_id='') {
+        if(!data) return;
+        console.log(data);
+        let id = data.id;
         await this.player.request(id);
         if(client_id) {
             let msg = {

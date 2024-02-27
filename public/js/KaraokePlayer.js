@@ -114,8 +114,10 @@ class KaraokePlayer{
         }
     }
     async request (id) {
+        console.log('requesting .. . .' + id);
         if(!this.isPlaying) {
             let url = 'https://www.youtube.com/v/' +id + '?version=3';
+            console.log(url);
             this.els.players_container.setAttribute('data-state', 'playing');
             await this.players[this.currentIdx].loadVideoByUrl(url, 0);
             this.updateCurrentQueueItem(id);
@@ -161,11 +163,14 @@ class KaraokePlayer{
     }
     requestVideoTitle(id, cb){
         let request = new XMLHttpRequest();
+        // let id = data.id;
         let url = this.fetchUrl + '?id=' + id;
+        console.log(id);
         request.onreadystatechange = async () => {
             if(request.readyState === 4 && request.status === 200) {
                 try {
                     let res = JSON.parse(request.responseText);
+                    console.log(res);
                     if(typeof cb === 'function' && res.items[0].snippet.title) {
                         cb(res.items[0].snippet.title);
                     }
