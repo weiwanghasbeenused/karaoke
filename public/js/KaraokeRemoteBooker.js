@@ -14,16 +14,14 @@ class KaraokeRemoteBooker extends KaraokeBooker {
             }
         });
     }
-    book(id) {
-        if(!id) return;
-        console.log('book()');
-        console.log(id);
+    book(data = null) {
+        if(!data) return;
         if( this.socket.readyState !== this.socket.OPEN) {
-            this.initSocket(()=>this.book(id));
+            this.initSocket(()=>this.book(data));
         } else {
             let msg = {
                 'type': 'book-req',
-                'body': id
+                'body': data
             };
             this.socket.send(JSON.stringify(msg));
         }

@@ -14,8 +14,6 @@ class KaraokeBooker{
         this.initSocket();
         this.renderElements();
         this.addListeners();
-        // this.els.input.value = '新不了情';
-        // this.els.search_btn.click();
     }
     initSocket(body = '', cb){
         this.socket = new WebSocket(this.host);
@@ -23,12 +21,11 @@ class KaraokeBooker{
             'type': 'register',
             'body': location.pathname
         }
+        console.log(this.socket.readyState);
         this.socket.addEventListener('open', (event) => this.socket.send(JSON.stringify(msg)) );
         this.addSocketListeners();
         if(typeof cb === 'function') cb();
     }
-    // addSocketListeners(){
-    // }
     renderElements(){
         this.els.form = document.createElement('form');
         this.els.form.className = 'karaoke-booker-control-container full-vw';
@@ -162,7 +159,7 @@ class KaraokeBooker{
         let arrow = document.createElement('div');
         arrow.className = 'arrow up-arrow';
         btn.appendChild(arrow);
-        btn.onclick = () => this.book(data.id.videoId);
+        btn.onclick = () => this.book( { 'id': data.id.videoId, 'title': data.snippet.title} );
         output.appendChild(tn_wrapper);
         output.appendChild(title);
         output.appendChild(btn);
@@ -206,6 +203,7 @@ class KaraokeBooker{
     }
     toggleZoomResult(event, el){
         // console.log(el);
+        console.log(event.target)
         if(event.target.classList.contains('book-btn')) return;
         // console.log(event.target)
         let zoomIn = !el.classList.contains('popped');

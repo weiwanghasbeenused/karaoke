@@ -6,7 +6,6 @@ html
             div#booker-container
         script(src="/js/KaraokeBooker.js")
         script(src="/js/KaraokeRemoteBooker.js")
-        script(src="/js/WS.js")
         script.
             /* websocket */
             const k_booker = new KaraokeRemoteBooker(document.querySelector('#booker-container'), '!{host}', '!{keyword}');   

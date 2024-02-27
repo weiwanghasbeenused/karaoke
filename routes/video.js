@@ -36,34 +36,45 @@ async function fetch(id, cb){
     });
     if(typeof cb === 'function') cb(response);
 }
-// Use the client to make API requests
-router.get('/search', function(req, res){
-    let keyword = req.query.q;
-    if(!keyword) {
-        let r = {
-            'status': 'error',
-            'body': 'q is not specified'
+
+module.exports = function(list){
+    // Use the client to make API requests
+    router.get('/search', function(req, res){
+        let keyword = req.query.q;
+        if(!keyword) {
+            let r = {
+                'status': 'error',
+                'body': 'q is not specified'
+            }
+            res.send(JSON.stringify(r))
+        }else {
+            search(keyword, function(response){
+                res.send(JSON.stringify(response.data))
+            });
         }
-        res.send(JSON.stringify(r))
-    }else {
-        search(keyword, function(response){
-            res.send(JSON.stringify(response.data))
-        });
-    }
-})
-router.get('/fetch', function(req, res){
-    let id = req.query.id;
-    if(!id) {
+    })
+    router.get('/fetch', function(req, res){
+        let id = req.query.id;
+        if(!id) {
+            let r = {
+                'status': 'error',
+                'type': 'fetch-res',
+                'body': 'id is not specified'
+            }
+            res.send(JSON.stringify(r));
+        }else {
+            fetch(id, function(response){
+                res.send(JSON.stringify(response.data))
+            });
+        }
+    })
+    router.get('/list', function(req, res){
         let r = {
-            'status': 'error',
-            'type': 'fetch-res',
-            'body': 'id is not specified'
+            'status': 'success',
+            'type': 'list-res',
+            'body': list
         }
         res.send(JSON.stringify(r));
-    }else {
-        fetch(id, function(response){
-            res.send(JSON.stringify(response.data))
-        });
-    }
-})
-module.exports = router;
+    })
+    return router;
+};

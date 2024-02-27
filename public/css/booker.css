@@ -87,6 +87,7 @@
 }
 .search-result-wrapper .book-btn .arrow {
     opacity: 0;
+    pointer-events: none;
 }
 .search-result-wrapper.popped .book-btn .arrow {
     opacity: 1;
