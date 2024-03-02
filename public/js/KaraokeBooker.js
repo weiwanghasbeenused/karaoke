@@ -15,13 +15,13 @@ class KaraokeBooker{
         this.renderElements();
         this.addListeners();
     }
-    initSocket(body = '', cb){
+    initSocket(cb){
+        console.log('initSocket');
         this.socket = new WebSocket(this.host);
         let msg = {
             'type': 'register',
             'body': location.pathname
         }
-        console.log(this.socket.readyState);
         this.socket.addEventListener('open', (event) => this.socket.send(JSON.stringify(msg)) );
         this.addSocketListeners();
         if(typeof cb === 'function') cb();

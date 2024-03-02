@@ -7,24 +7,25 @@ class KaraokeLocalBooker extends KaraokeBooker {
     }
 
     addSocketListeners(){
-        console.log('addSocketListeners local');
+        // console.log('addSocketListeners local');
         this.socket.addEventListener('message', (event) => {
             let data = JSON.parse(event.data);
-            console.log(data);
             if(data.type === 'book-req') {
                 if(!this.player.isReady) return;
                 console.log('ready?');
                 this.book(data.body, data.client_id);
             } else if (data.type === 'register-res'){
-                console.log(data.status);
-                console.log(data.body);
+                if(data.status === 'success') {
+                    console.log('registered as a player successfully. display the code on the screen . . .');
+
+                }
             }
                 
         });
     }
     async book(data, client_id='') {
         if(!data) return;
-        console.log(data);
+        // console.log(data);
         let id = data.id;
         await this.player.request(id);
         if(client_id) {

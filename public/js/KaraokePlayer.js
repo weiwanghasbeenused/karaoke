@@ -36,16 +36,10 @@ class KaraokePlayer{
         this.els.input.setAttribute('placeholder', 'Youtube URL . . .');
         this.els.submit = document.createElement('button');
         this.els.submit.innerText = '點歌';
-        // this.els.karaoke_controls_container.appendChild(this.els.input);
-        // this.els.karaoke_controls_container.appendChild(this.els.submit);
-
-        // this.els.toggleDashboardButton = document.createElement('input');
-
         this.els.dashboard.appendChild(this.els.queue_container);
         this.els.dashboard.appendChild(this.els.karaoke_controls_container);
         this.els.expand_btn = document.createElement('div');
         this.els.expand_btn.setAttribute('data-btn-status', 'on');
-        // this.els.expand_btn.innerText = '展開';
         this.els.expand_btn.id = 'expand-dashboard-btn';
         this.els.expand_btn.className = 'btn';
         this.container.appendChild(this.els.expand_btn);
@@ -66,9 +60,6 @@ class KaraokePlayer{
         }
     }
     addListeners(){
-        // this.els.submit.addEventListener('click', ()=> {
-        //     this.book(this.els.input.value);
-        // });
         this.els.expand_btn.addEventListener('click', ()=> {
             let v = this.els.dashboard.getAttribute('data-visibility') == 'visible' ? 'hidden' : 'visible';
             let s = v === 'visible' ? 'on' : 'off';
@@ -99,7 +90,9 @@ class KaraokePlayer{
     //    The function indicates that when playing a video (state=1),
     //    the player should play for six seconds and then stop.
     onPlayerStateChange(e) {
+        
         let state = e.data;
+        console.log('playerStateChange: ' + state);
         if(state === 0) {
             // video ends
             this.isPlaying = false;
@@ -108,16 +101,15 @@ class KaraokePlayer{
             this.isPlaying = true;
             let idx = e.target.o.getAttribute('data-player-index');
             this.els.players_container.setAttribute('data-playing-index', idx);
-        } else if(state === 5 && !this.isPlaying) {
-            console.log('??');
+        } else if((state === 5 || state === -1 )&& !this.isPlaying) {
             this.play(e.target);
         }
     }
     async request (id) {
-        console.log('requesting .. . .' + id);
+        // console.log('requesting .. . .' + id);
         if(!this.isPlaying) {
             let url = 'https://www.youtube.com/v/' +id + '?version=3';
-            console.log(url);
+            // console.log(url);
             this.els.players_container.setAttribute('data-state', 'playing');
             await this.players[this.currentIdx].loadVideoByUrl(url, 0);
             this.updateCurrentQueueItem(id);
@@ -139,14 +131,16 @@ class KaraokePlayer{
 
     }
     stop (p){
-        p = typeof p !== 'Object' ? this.players[p] : p;
+        p = typeof p !== 'object' ? this.players[p] : p;
         p.classList.remove('playing');
         p.stopVideo();
     }
     play(p){
-        p = typeof p !== 'Object' ? this.players[p] : p;
+        // console.log(typeof p);
+        p = typeof p !== 'object' ? this.players[p] : p;
+        // console.log(p);
         this.els.players_container.setAttribute('data-state', 'playing');
-        p.classList.add('playing');
+        p.o.classList.add('playing');
         p.playVideo();
     }
     
@@ -163,14 +157,11 @@ class KaraokePlayer{
     }
     requestVideoTitle(id, cb){
         let request = new XMLHttpRequest();
-        // let id = data.id;
         let url = this.fetchUrl + '?id=' + id;
-        console.log(id);
         request.onreadystatechange = async () => {
             if(request.readyState === 4 && request.status === 200) {
                 try {
                     let res = JSON.parse(request.responseText);
-                    console.log(res);
                     if(typeof cb === 'function' && res.items[0].snippet.title) {
                         cb(res.items[0].snippet.title);
                     }

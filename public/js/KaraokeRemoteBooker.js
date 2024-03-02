@@ -16,8 +16,12 @@ class KaraokeRemoteBooker extends KaraokeBooker {
     }
     book(data = null) {
         if(!data) return;
+        console.log('socket readyState: ' + this.socket.readyState);
         if( this.socket.readyState !== this.socket.OPEN) {
-            this.initSocket(()=>this.book(data));
+            console.log('reconnecting...');
+            this.initSocket(()=>{
+                this.book(data)
+            });
         } else {
             let msg = {
                 'type': 'book-req',

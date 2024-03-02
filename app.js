@@ -3,20 +3,22 @@ const app = express()
 require('dotenv').config()
 const server = require('http').createServer(app)
 const WebSocket = require('ws');
-const url = require('url');
+// const url = require('url');
 const wss = new WebSocket.Server({ server: server })
 const port = process.env.PORT;
 const bookers = new Map();
 const players = new Map();
 const list = [];
-const begin = false;
+const TIMEOUT_INTERVAL = 600000; // 10 mins
+// const begin = false;
+
 wss.on('connection', function connection(ws, request, client) {
-    let body = 'You are connected.';
-    let welcome_msg = {
-        'type': 'welcome',
-        'body': body
-    };
-    ws.send(JSON.stringify(welcome_msg));
+    // let body = 'You are connected.';
+    // let welcome_msg = {
+    //     'type': 'welcome',
+    //     'body': body
+    // };
+    // ws.send(JSON.stringify(welcome_msg));
     ws.on('message', function incoming(message, isBinary){
         let data = JSON.parse(message);
         if(data.type === 'register') {
@@ -27,11 +29,29 @@ wss.on('connection', function connection(ws, request, client) {
                 'body': ''
             };
             if(data.body === '/player') {
-                console.log('A new player connected')
+                console.log('A new player connected');
+                let code = '';
+                for(let i = 0; i < 4; i++) {
+                    code += parseInt(10 * Math.random());
+                }
                 players.set(client_id, ws);
-                // response['body'] += 'player ('+client_id+').';
-                response['body'] = begin;
+                response['body'] = code;
                 ws.send(JSON.stringify(response));
+
+                // keep players alive
+                let timer = setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                      // Check if the connection is still open
+                      // If the connection is idle for too long, close it
+                      ws.terminate();
+                    }
+                }, TIMEOUT_INTERVAL);
+                
+                ws.on('close', () => {
+                    // Clear the interval when the connection is closed
+                    clearInterval(timer);
+                });
+
             }
             else if(data.body === '/') {
                 console.log('A new user connected')
@@ -49,7 +69,6 @@ wss.on('connection', function connection(ws, request, client) {
             let c_id = data.body;
             bookers[c_id].send(message, {binary:isBinary});
         } else if(data.type === 'book-req') {
-            console.log('book request: ' + data.body);
             list.push(data.body);
             players.forEach(function(p, key){
                 if(p.readyState === WebSocket.OPEN) {
