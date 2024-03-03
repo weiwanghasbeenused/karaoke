@@ -31,10 +31,11 @@ class KaraokeLocalBooker extends KaraokeBooker {
     }
     async book(data) {
         if(!data) return;
-        console.log(data);
-        let id = data.id;
-        let booked = await this.player.request(id);
-        
+        let booked = false;
+        if(data.id) {
+            let id = data.id;
+            booked = await this.player.request(id);
+        } 
         let msg = {
             'type': 'book-res',
             'status': booked ? 'success' : 'error',

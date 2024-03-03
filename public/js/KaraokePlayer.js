@@ -112,6 +112,7 @@ class KaraokePlayer{
         }
     }
     request (id) {
+        if(!id) return false;
         console.log('requesting .. . .' + id);
         if(!this.isPlaying) {
             let url = 'https://www.youtube.com/v/' +id + '?version=3';
