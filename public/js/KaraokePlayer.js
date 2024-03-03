@@ -5,7 +5,7 @@ class KaraokePlayer{
         this.players = [];
         this.player_num = 1;
         this.player_ready_num = 0;
-        this.isReady = false;
+        // this.isReady = false;
         this.queue = [];
         this.currentIdx = 0;
         this.gapi = null;
@@ -81,17 +81,23 @@ class KaraokePlayer{
     }
     // 4. The API will call this function when the video player is ready.
     onPlayerReady(e) {
-        // console.log('Youtube API is ready');
-        this.player_ready_num ++;
-        if(this.player_ready_num == this.player_ready_num) this.isReady = true;
+        console.log('onPlayerReady');
     }
 
     // 5. The API calls this function when the player's state changes.
     //    The function indicates that when playing a video (state=1),
     //    the player should play for six seconds and then stop.
     onPlayerStateChange(e) {
-        
+        /*
+            -1 (unstarted)
+            0 (ended)
+            1 (playing)
+            2 (paused)
+            3 (buffering)
+            5 (video cued).
+        */
         let state = e.data;
+        // console.log(e);
         console.log('playerStateChange: ' + state);
         if(state === 0) {
             // video ends
@@ -101,23 +107,25 @@ class KaraokePlayer{
             this.isPlaying = true;
             let idx = e.target.o.getAttribute('data-player-index');
             this.els.players_container.setAttribute('data-playing-index', idx);
-        } else if((state === 5 || state === -1 )&& !this.isPlaying) {
+        } else if((state === 5) && !this.isPlaying) {
             this.play(e.target);
         }
     }
-    async request (id) {
-        // console.log('requesting .. . .' + id);
+    request (id) {
+        console.log('requesting .. . .' + id);
         if(!this.isPlaying) {
             let url = 'https://www.youtube.com/v/' +id + '?version=3';
-            // console.log(url);
             this.els.players_container.setAttribute('data-state', 'playing');
-            await this.players[this.currentIdx].loadVideoByUrl(url, 0);
+            console.log(this.players[this.currentIdx]);
+            this.players[this.currentIdx].cueVideoByUrl(url, 0);
+            console.log('post loadVideoByUrl()')
             this.updateCurrentQueueItem(id);
         } 
         else {
             this.queue.push(id);
             this.appendQueueItem(id);
         }
+        return true;
     }
     next(){
         if(!this.queue.length) return;
@@ -136,12 +144,13 @@ class KaraokePlayer{
         p.stopVideo();
     }
     play(p){
-        // console.log(typeof p);
         p = typeof p !== 'object' ? this.players[p] : p;
-        // console.log(p);
         this.els.players_container.setAttribute('data-state', 'playing');
-        p.o.classList.add('playing');
-        p.playVideo();
+        setTimeout(()=>{
+            console.log('play');
+            // this.players[this.currentIdx])
+            console.log(this.players[this.currentIdx].playVideo());
+        }, 5000);
     }
     
     updateCurrentQueueItem(id){

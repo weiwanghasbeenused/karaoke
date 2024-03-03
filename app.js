@@ -13,13 +13,7 @@ const SOCKET_TIMEOUT = process.env.SOCKET_TIMEOUT * 1000; // 10 mins
 
 // const begin = false;
 
-wss.on('connection', function connection(ws, request, client) {
-    // let body = 'You are connected.';
-    // let welcome_msg = {
-    //     'type': 'welcome',
-    //     'body': body
-    // };
-    // ws.send(JSON.stringify(welcome_msg));
+wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message, isBinary){
         let data = JSON.parse(message);
         if(data.type === 'register') {
@@ -46,14 +40,16 @@ wss.on('connection', function connection(ws, request, client) {
                 ws.send(JSON.stringify(response));
             }
             else {
-                console.log('failed attempt to connect')
                 response['status'] = 'error';
                 response['body'] = 'fail to register: known path.'
                 ws.send(JSON.stringify(response));
             }
         } else if(data.type === 'book-res') {
-            let c_id = data.body;
-            bookers[c_id].send(message, {binary:isBinary});
+            wss.clients.forEach(function each(client) {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify(data), { binary: isBinary });
+                }
+            });
         } else if(data.type === 'book-req') {
             list.push(data.body);
             players.forEach(function(p, key){

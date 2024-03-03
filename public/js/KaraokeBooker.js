@@ -65,7 +65,9 @@ class KaraokeBooker{
         this.els.pa = document.createElement('div');
         this.els.pa.id = 'karaoke-booker-pa';
         this.els.pa.className = 'full-vw';
-
+        this.els.pa_text = document.createElement('div');
+        this.els.pa_text.className = 'pa-text';
+        this.els.pa.appendChild(this.els.pa_text);
         this.els.form.appendChild(this.els.wrapper);
         this.els.form.appendChild(this.els.search_btn);
         this.els.result_container = document.createElement('div');

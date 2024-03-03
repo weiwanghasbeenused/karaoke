@@ -14,7 +14,9 @@ html
             const kplayer = new KaraokePlayer(sKaraoke_container);    
             const kbooker = new KaraokeLocalBooker(kplayer.els.karaoke_controls_container, '!{host}', kplayer, !{socket_timeout});
             function onYouTubeIframeAPIReady() {
+                console.log('onYouTubeIframeAPIReady');
                 for(let i = 0; i < kplayer.player_num; i++) {
+                    
                     kplayer.players[i] = new YT.Player('player-' + (i + 1), {
                         height: '100%',
                         width: '100%',
@@ -23,6 +25,7 @@ html
                             'onStateChange': kplayer.onPlayerStateChange.bind(kplayer)
                         }
                     });
+                    console.log(kplayer.players[i]);
                 }
             }
             let client;

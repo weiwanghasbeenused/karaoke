@@ -11,8 +11,8 @@ class KaraokeRemoteBooker extends KaraokeBooker {
     addSocketListeners(){
         this.socket.addEventListener('message', (event) => {
             let data = JSON.parse(event.data);
-            if(data.type === 'response' && data.status === 'success') {
-                this.reportBooking(data.body);
+            if(data.type === 'book-res') {
+                this.reportBooking(data);
             } else if (data.type === 'register-res'){
                 console.log(data.body);
             }
@@ -38,11 +38,11 @@ class KaraokeRemoteBooker extends KaraokeBooker {
             this.socket.send(JSON.stringify(msg));
         }
     }
-    reportBooking(name){
-        this.els.pa.innerText = '已點播: <br>' + name;
+    reportBooking(data){
+        this.els.pa_text.innerHTML =  data.status === 'success' ? '已點播: <br>' + data.body : '點播失敗: <br>' + data.title;
         this.container.classList.add('viewing-pa');
         window.setTimeout(() => {
             this.container.classList.remove('viewing-pa');
-        }, 3000);
+        }, 6000);
     }
 }
