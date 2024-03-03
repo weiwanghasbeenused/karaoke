@@ -1,6 +1,6 @@
 class KaraokeRemoteBooker extends KaraokeBooker {
     constructor(container, host, keyword = '', timeout = false){
-        super(container, host, keyword);
+        super(container, host, keyword, timeout);
         this.container.setAttribute('control-layout', 'full');
         this.init();
     }

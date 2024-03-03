@@ -10,6 +10,7 @@ const bookers = new Map();
 const players = new Map();
 const list = [];
 const SOCKET_TIMEOUT = process.env.SOCKET_TIMEOUT * 1000; // 10 mins
+
 // const begin = false;
 
 wss.on('connection', function connection(ws, request, client) {
@@ -37,21 +38,6 @@ wss.on('connection', function connection(ws, request, client) {
                 players.set(client_id, ws);
                 response['body'] = code;
                 ws.send(JSON.stringify(response));
-
-                // keep players alive
-                let timer = setInterval(() => {
-                    if (ws.readyState === WebSocket.OPEN) {
-                      // Check if the connection is still open
-                      // If the connection is idle for too long, close it
-                      ws.terminate();
-                    }
-                }, SOCKET_TIMEOUT);
-process.env.SOCKET_TIMEOUT * 1000          
-                ws.on('close', () => {
-                    // Clear the interval when the connection is closed
-                    clearInterval(timer);
-                });
-
             }
             else if(data.body === '/') {
                 console.log('A new user connected')

@@ -12,7 +12,7 @@ html
         script.
             let sKaraoke_container = document.getElementById('karaoke-container');
             const kplayer = new KaraokePlayer(sKaraoke_container);    
-            const kbooker = new KaraokeLocalBooker(kplayer.els.karaoke_controls_container, '!{host}', kplayer);
+            const kbooker = new KaraokeLocalBooker(kplayer.els.karaoke_controls_container, '!{host}', kplayer, !{socket_timeout});
             function onYouTubeIframeAPIReady() {
                 for(let i = 0; i < kplayer.player_num; i++) {
                     kplayer.players[i] = new YT.Player('player-' + (i + 1), {
