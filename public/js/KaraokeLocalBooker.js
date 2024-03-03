@@ -9,6 +9,9 @@ class KaraokeLocalBooker extends KaraokeBooker {
         super.initSocket(null, true);
         super.init();
     }
+    reportBooking(){
+        console.log('reportBooking for local bookers');
+    }
     addSocketListeners(){
         this.socket.addEventListener('message', (event) => {
             let data = JSON.parse(event.data);

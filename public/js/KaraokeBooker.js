@@ -10,6 +10,7 @@ class KaraokeBooker{
         this.search_timer = null;
         this.socket_timer = null;
         this.socket_timeout = timeout ? timeout : 60000;
+        this.socket_timeout -= 1000;
     }
     init(){
         this.renderElements();
@@ -28,13 +29,14 @@ class KaraokeBooker{
         if(typeof cb === 'function') cb();
     }
     imAlive(){
+        console.log('imAlive');
         let msg = {
             'type': 'keep-alive',
             'body': 'i will survive'
         };
         this.socket_timer = setInterval(()=>{
             this.socket.send(JSON.stringify(msg));
-        }, this.socket_timeout);
+        }, this.socket_timeout - 1000);
     }
     renderElements(){
         this.els.form = document.createElement('form');
