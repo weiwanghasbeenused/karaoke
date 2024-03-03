@@ -1,5 +1,5 @@
 class KaraokeBooker{
-    constructor(container, host, keyword=''){
+    constructor(container, host, keyword='', timeout = false){
         this.container = container;
         this.container.setAttribute('data-role', 'booker-container');
         this.keyword = keyword ? keyword : '';
@@ -7,15 +7,17 @@ class KaraokeBooker{
         this.socket = null;
         this.els = {};
         this.searchUrl = '/video/search';
-        this.timer = null;
-        this.init();
+        this.search_timer = null;
+        this.socket_timer = null;
+        this.socket_timeout = timeout ? timeout : 60;
+        // this.init();
     }
     init(){
         this.initSocket();
         this.renderElements();
         this.addListeners();
     }
-    initSocket(cb){
+    initSocket(cb, keepAlive = false){
         console.log('initSocket');
         this.socket = new WebSocket(this.host);
         let msg = {
@@ -24,7 +26,17 @@ class KaraokeBooker{
         }
         this.socket.addEventListener('open', (event) => this.socket.send(JSON.stringify(msg)) );
         this.addSocketListeners();
+        if(keepAlive) this.imAlive();
         if(typeof cb === 'function') cb();
+    }
+    imAlive(){
+        let msg = {
+            'type': 'keep-alive',
+            'body': 'i will survive'
+        };
+        this.socket_timer = setInterval(()=>{
+            this.socket.send(JSON.stringify(msg));
+        }, this.socket_timeout);
     }
     renderElements(){
         this.els.form = document.createElement('form');
@@ -65,7 +77,7 @@ class KaraokeBooker{
         this.container.appendChild(this.els.pa);
         if(this.keyword === '') return;
         this.search(this.keyword, (res)=>{
-            clearInterval(this.timer);
+            clearInterval(this.search_timer);
             this.els.input.invalid = false;
             this.els.arrow.style.transform = '';
             for(let i = 0; i < res.items.length; i++) {
@@ -85,10 +97,10 @@ class KaraokeBooker{
         //     let keyword = this.els.input.value;
         //     if(!keyword || keyword.match(/^\s*&/)) return;
         //     this.els.result_container.innerHTML = '';
-        //     this.timer = this.animateArrow();
+        //     this.search_timer = this.animateArrow();
         //     this.els.input.invalid = true;
         //     this.search(keyword, (res)=>{
-        //         clearInterval(this.timer);
+        //         clearInterval(this.search_timer);
         //         this.els.input.invalid = false;
         //         this.els.arrow.style.transform = '';
         //         for(let i = 0; i < res.items.length; i++) {
@@ -106,10 +118,10 @@ class KaraokeBooker{
             let keyword = this.els.input.value;
             if(!keyword || keyword.match(/^\s*&/)) return;
             this.els.result_container.innerHTML = '';
-            this.timer = this.animateArrow();
+            this.search_timer = this.animateArrow();
             this.els.input.invalid = true;
             this.search(keyword, (res)=>{
-                clearInterval(this.timer);
+                clearInterval(this.search_timer);
                 this.els.input.invalid = false;
                 this.els.arrow.style.transform = '';
                 for(let i = 0; i < res.items.length; i++) {

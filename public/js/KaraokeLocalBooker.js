@@ -1,13 +1,15 @@
 class KaraokeLocalBooker extends KaraokeBooker {
-    constructor(container, host, player = null){
-        super(container, host);
+    constructor(container, host, player = null, timeout = false){
+        super(container, host, null, timeout);
         this.player = player;
         this.container.setAttribute('data-booker-type', 'local');
-        // this.init();
+        this.init();
     }
-
+    init(){
+        super.initSocket(null, true);
+        super.init();
+    }
     addSocketListeners(){
-        // console.log('addSocketListeners local');
         this.socket.addEventListener('message', (event) => {
             let data = JSON.parse(event.data);
             if(data.type === 'book-req') {
