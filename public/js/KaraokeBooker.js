@@ -13,7 +13,7 @@ class KaraokeBooker{
         // this.init();
     }
     init(){
-        this.initSocket();
+        // this.initSocket();
         this.renderElements();
         this.addListeners();
     }

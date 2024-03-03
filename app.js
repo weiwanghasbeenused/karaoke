@@ -9,7 +9,7 @@ const port = process.env.PORT;
 const bookers = new Map();
 const players = new Map();
 const list = [];
-const TIMEOUT_INTERVAL = 600000; // 10 mins
+const SOCKET_TIMEOUT = process.env.SOCKET_TIMEOUT * 1000; // 10 mins
 // const begin = false;
 
 wss.on('connection', function connection(ws, request, client) {
@@ -45,8 +45,8 @@ wss.on('connection', function connection(ws, request, client) {
                       // If the connection is idle for too long, close it
                       ws.terminate();
                     }
-                }, TIMEOUT_INTERVAL);
-                
+                }, SOCKET_TIMEOUT);
+process.env.SOCKET_TIMEOUT * 1000          
                 ws.on('close', () => {
                     // Clear the interval when the connection is closed
                     clearInterval(timer);
