@@ -9,7 +9,8 @@ class KaraokeBooker{
         this.searchUrl = '/video/search';
         this.search_timer = null;
         this.socket_timer = null;
-        this.socket_timeout = timeout ? timeout : 60;
+        this.socket_timeout = timeout ? timeout : 60000;
+        console.log(this.socket_timeout);
         // this.init();
     }
     init(){
