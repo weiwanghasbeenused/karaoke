@@ -29,14 +29,15 @@ class KaraokeBooker{
         if(typeof cb === 'function') cb();
     }
     imAlive(){
-        console.log('imAlive');
+        // console.log('imAlive');
         let msg = {
             'type': 'keep-alive',
             'body': 'i will survive'
         };
         this.socket_timer = setInterval(()=>{
+            console.log('imAlive');
             this.socket.send(JSON.stringify(msg));
-        }, this.socket_timeout - 1000);
+        }, this.socket_timeout);
     }
     renderElements(){
         this.els.form = document.createElement('form');
