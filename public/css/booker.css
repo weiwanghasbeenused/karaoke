@@ -159,8 +159,8 @@
 }
 .btn.circle-btn {
     border-radius: 50%;
-    width:38.5px;
-    height:38.5px;
+    width:37px;
+    height:37px;
     display: flex;
     justify-content: center;
     align-items: center;
